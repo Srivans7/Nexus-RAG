@@ -52,14 +52,15 @@ def load_faiss_database(index_path, embedding_dimension):
     return faiss.IndexIDMap2(base_index)
 
 
-def save_faiss_database(index: faiss.Index, index_path: str | Path) -> None:
+def save_faiss_database(index, index_path) -> None:
     """Persist FAISS index state locally for durable retrieval across restarts."""
+    import faiss
     resolved_path = Path(index_path)
     resolved_path.parent.mkdir(parents=True, exist_ok=True)
     faiss.write_index(index, str(resolved_path))
 
 
-def similarity_search(index: faiss.Index, query_embedding: np.ndarray, top_k: int = 5) -> list[dict]:
+def similarity_search(index, query_embedding, top_k: int = 5) -> list[dict]:
     """Run vector similarity search and return ids/scores in descending rank order."""
     if query_embedding.ndim != 2:
         raise ValueError('query_embedding must be a 2D numpy array shaped (1, dimension).')
