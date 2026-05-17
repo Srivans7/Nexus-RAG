@@ -1,0 +1,227 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  @apply m-0 min-h-screen bg-background font-sans text-on-surface antialiased;
+  background-image:
+    radial-gradient(circle at 18% 22%, rgba(160, 120, 255, 0.14), transparent 24%),
+    radial-gradient(circle at 80% 18%, rgba(3, 181, 211, 0.12), transparent 22%),
+    radial-gradient(circle at 50% 100%, rgba(208, 188, 255, 0.08), transparent 30%),
+    linear-gradient(180deg, #0b0b0b 0%, #131313 40%, #121212 100%);
+}
+
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 450, 'GRAD' 0, 'opsz' 24;
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-panel {
+  background: linear-gradient(180deg, rgba(32, 31, 31, 0.82), rgba(19, 19, 19, 0.86));
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.auth-shell {
+  background:
+    radial-gradient(circle at 50% 38%, rgba(160, 120, 255, 0.16), transparent 24%),
+    radial-gradient(circle at 74% 58%, rgba(3, 181, 211, 0.12), transparent 24%),
+    linear-gradient(180deg, #020506 0%, #05090b 48%, #010304 100%);
+}
+
+.auth-glow {
+  pointer-events: none;
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(130px);
+  opacity: 0.95;
+}
+
+.auth-glow-primary {
+  left: 18%;
+  top: 22%;
+  height: 420px;
+  width: 420px;
+  background: rgba(160, 120, 255, 0.15);
+}
+
+.auth-glow-secondary {
+  right: 14%;
+  top: 42%;
+  height: 360px;
+  width: 360px;
+  background: rgba(3, 181, 211, 0.12);
+}
+
+.auth-card {
+  background: linear-gradient(180deg, rgba(43, 43, 59, 0.72), rgba(24, 31, 42, 0.7));
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.auth-social-button {
+  display: flex;
+  min-height: 56px;
+  width: 100%;
+  align-items: center;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  padding: 0 18px;
+  color: rgb(229 226 225);
+  transition: background-color 180ms ease, transform 180ms ease, box-shadow 180ms ease;
+}
+
+.auth-social-button:hover {
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 18px rgba(160, 120, 255, 0.14);
+}
+.auth-social-button:disabled {
+  cursor: not-allowed;
+}
+
+.auth-dialog-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(2, 5, 6, 0.74);
+  backdrop-filter: blur(10px);
+  padding: 24px;
+}
+
+.auth-dialog-card {
+  max-height: min(78vh, 720px);
+  width: min(680px, 100%);
+  overflow-y: auto;
+  border-radius: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(180deg, rgba(27, 29, 38, 0.94), rgba(14, 18, 24, 0.95));
+  padding: 28px;
+  box-shadow: 0 24px 90px rgba(0, 0, 0, 0.52);
+}
+
+.auth-node {
+  position: absolute;
+  z-index: 5;
+  opacity: 0.42;
+}
+
+.auth-node-left {
+  left: 68px;
+  top: 52%;
+  transform: translateY(-50%);
+  width: 320px;
+}
+
+.auth-node-right {
+  right: 72px;
+  top: 34%;
+  width: 360px;
+}
+
+.auth-node-card {
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+  padding: 18px;
+  backdrop-filter: blur(22px);
+}
+
+.auth-progress {
+  background: linear-gradient(90deg, rgba(160, 120, 255, 0.65), rgba(76, 215, 246, 0.7));
+  box-shadow: 0 0 10px rgba(76, 215, 246, 0.35);
+}
+
+.ai-shimmer {
+  background: linear-gradient(90deg, #d0bcff 0%, #4cd7f6 50%, #d0bcff 100%);
+  background-size: 200% auto;
+}
+
+.top-edge-light {
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(149, 142, 160, 0.28);
+  border-radius: 9999px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.markdown-body {
+  @apply space-y-4 text-[15px] leading-7 text-on-surface;
+}
+
+.markdown-body p,
+.markdown-body ul,
+.markdown-body ol,
+.markdown-body pre,
+.markdown-body blockquote {
+  @apply m-0;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+  @apply pl-5;
+}
+
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4 {
+  @apply m-0 font-geist font-semibold tracking-tight text-on-surface;
+}
+
+.markdown-body h3 {
+  @apply text-lg;
+}
+
+.markdown-body li {
+  @apply py-0.5;
+}
+
+.markdown-body hr {
+  @apply my-3 border-white/10;
+}
+
+.markdown-body a {
+  @apply text-secondary underline underline-offset-4;
+}
+
+.markdown-body code {
+  @apply rounded-lg bg-white/5 px-1.5 py-0.5 font-mono text-[13px] text-primary;
+}
+
+.markdown-body pre {
+  @apply overflow-x-auto rounded-2xl border border-white/10 bg-black/50 p-4 font-mono text-sm;
+}
+
+.markdown-body blockquote {
+  @apply border-l-2 border-primary/40 pl-4 text-on-surface-variant;
+}

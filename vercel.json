@@ -1,0 +1,10 @@
+{
+  "buildCommand": "cd frontend && npm install && npm run build",
+  "outputDirectory": "frontend/dist",
+  "framework": "vite",
+  "env": {
+    "VITE_GOOGLE_CLIENT_ID": "@vite_google_client_id",
+    "VITE_API_BASE_URL": "@vite_api_base_url",
+    "VITE_API_TIMEOUT_MS": "@vite_api_timeout_ms"
+  }
+}
