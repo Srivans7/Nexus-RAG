@@ -1,22 +1,20 @@
 import functools
 from pathlib import Path
 
-import faiss
-import numpy as np
-from sentence_transformers import SentenceTransformer
-
 
 DEFAULT_EMBEDDING_MODEL = 'sentence-transformers/all-MiniLM-L6-v2'
 
 
 @functools.lru_cache(maxsize=4)
-def get_embedding_model(model_name: str = DEFAULT_EMBEDDING_MODEL) -> SentenceTransformer:
+def get_embedding_model(model_name: str = DEFAULT_EMBEDDING_MODEL):
     """Load and cache a SentenceTransformer model for reuse across requests."""
+    from sentence_transformers import SentenceTransformer
     return SentenceTransformer(model_name)
 
 
-def create_embeddings(texts: list[str], model_name: str = DEFAULT_EMBEDDING_MODEL) -> np.ndarray:
+def create_embeddings(texts: list[str], model_name: str = DEFAULT_EMBEDDING_MODEL):
     """Create normalized float32 embeddings for a list of texts."""
+    import numpy as np
     if not texts:
         return np.zeros((0, 0), dtype='float32')
 
@@ -30,8 +28,10 @@ def create_embeddings(texts: list[str], model_name: str = DEFAULT_EMBEDDING_MODE
     return vectors.astype('float32')
 
 
-def load_faiss_database(index_path: str | Path, embedding_dimension: int) -> faiss.IndexIDMap2:
+def load_faiss_database(index_path, embedding_dimension):
     """Load an existing FAISS index from disk, or create a new local index."""
+    import faiss
+    import numpy as np
     resolved_path = Path(index_path)
     resolved_path.parent.mkdir(parents=True, exist_ok=True)
 

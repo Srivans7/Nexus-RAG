@@ -1,7 +1,6 @@
 import json
 from pathlib import Path
 
-import numpy as np
 from django.conf import settings
 
 from .embedding_service import EmbeddingService
@@ -40,6 +39,7 @@ class FaissVectorStoreService:
         chunk_texts = [chunk.content for chunk in chunks]
         embeddings = self.embedding_service.embed_texts(chunk_texts)
 
+        import numpy as np
         vector_ids = np.array(
             [self._build_vector_id(document_id, chunk.chunk_index) for chunk in chunks],
             dtype='int64',
@@ -71,6 +71,7 @@ class FaissVectorStoreService:
             if payload.get('document_id') == document_id
         ]
         if ids_to_remove:
+            import numpy as np
             index.remove_ids(np.array(ids_to_remove, dtype='int64'))
 
         filtered_metadata = {
