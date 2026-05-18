@@ -351,9 +351,7 @@ function AccountPanel({ isAuthenticated, user, health, onOpenLogin, onLogout, on
   const backendLabel =
     health?.backend
       ? health.backend.charAt(0).toUpperCase() + health.backend.slice(1)
-      : health?.ollama
-        ? 'Ollama'
-        : 'AI Backend';
+      : 'AI Backend';
   const modelLabel = health?.model || 'Unknown model';
 
   if (isAuthenticated && user) {
@@ -490,7 +488,7 @@ function HelpPanel() {
   const steps = [
     { icon: 'upload_file', title: 'Upload a Document', desc: 'Click the paperclip in the chat bar and select a .md, .txt, or .pdf file.' },
     { icon: 'auto_awesome', title: 'Automatic Indexing', desc: 'Your document is chunked, embedded, and indexed into FAISS automatically.' },
-    { icon: 'chat', title: 'Ask Questions', desc: 'Type any question in the chat. Nexus AI retrieves relevant passages and answers using Ollama.' },
+    { icon: 'chat', title: 'Ask Questions', desc: 'Type any question in the chat. Nexus AI retrieves relevant passages and answers using Gemini.' },
     { icon: 'source', title: 'View Sources', desc: 'Every answer shows the exact document chunks used so you can verify accuracy.' },
     { icon: 'library_books', title: 'Multi-Document', desc: 'Upload multiple files and attach several documents to a single question.' },
     { icon: 'forum', title: 'Conversation Memory', desc: 'Follow-up questions are answered with full conversation context preserved.' },

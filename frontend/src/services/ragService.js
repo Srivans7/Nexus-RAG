@@ -181,7 +181,7 @@ export async function clearChatHistory() {
 
 export async function getOllamaHealth() {
   try {
-    const response = await httpClient.get('/api/health/ollama/', {
+    const response = await httpClient.get('/api/health/llm/', {
       validateStatus: (status) => status >= 200 && status < 600,
     });
 
