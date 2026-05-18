@@ -36,6 +36,11 @@ ALLOWED_HOSTS = os.getenv(
     'localhost,127.0.0.1,nexus-rag-backend-lkhp.onrender.com',
 ).split(',')
 
+# Render sets RENDER_EXTERNAL_HOSTNAME automatically — add it so deploys never get DisallowedHost.
+_render_host = os.getenv('RENDER_EXTERNAL_HOSTNAME')
+if _render_host:
+    ALLOWED_HOSTS.append(_render_host)
+
 
 # Application definition
 
@@ -132,7 +137,16 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICSFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# Django 6 uses STORAGES dict instead of deprecated STATICFILES_STORAGE.
+STORAGES = {
+    'default': {
+        'BACKEND': 'django.core.files.storage.FileSystemStorage',
+    },
+    'staticfiles': {
+        'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+    },
+}
 
 # Media configuration for user-uploaded documents.
 MEDIA_URL = '/media/'
