@@ -32,12 +32,13 @@ class FaissVectorStoreService:
             self.remove_document_vectors(document_id)
             return
 
-        embedding_dimension = self.embedding_service.embedding_dimension
-        index = load_faiss_database(self.index_path, embedding_dimension)
-        metadata = self._load_metadata()
-
         chunk_texts = [chunk.content for chunk in chunks]
         embeddings = self.embedding_service.embed_texts(chunk_texts)
+        actual_dimension = int(embeddings.shape[1])
+
+        embedding_dimension = self.embedding_service.embedding_dimension
+        index = self._safe_load_index(preferred_dimension=embedding_dimension, fallback_dimension=actual_dimension)
+        metadata = self._load_metadata()
 
         import numpy as np
         vector_ids = np.array(
@@ -45,9 +46,15 @@ class FaissVectorStoreService:
             dtype='int64',
         )
 
-        # Remove old vectors with same logical IDs before adding refreshed records.
-        index.remove_ids(vector_ids)
-        index.add_with_ids(embeddings, vector_ids)
+        try:
+            # Remove old vectors with same logical IDs before adding refreshed records.
+            index.remove_ids(vector_ids)
+            index.add_with_ids(embeddings, vector_ids)
+        except (AssertionError, ValueError):
+            # FAISS can raise empty-message AssertionError on dimension mismatch.
+            # When embeddings model/dimension changes, rebuild local index + metadata.
+            index, metadata = self._reset_store(actual_dimension)
+            index.add_with_ids(embeddings, vector_ids)
 
         for chunk in chunks:
             vector_id = self._build_vector_id(document_id, chunk.chunk_index)
@@ -62,7 +69,7 @@ class FaissVectorStoreService:
     def remove_document_vectors(self, document_id: int) -> None:
         """Delete all vectors and metadata entries associated with one document."""
         embedding_dimension = self.embedding_service.embedding_dimension
-        index = load_faiss_database(self.index_path, embedding_dimension)
+        index = self._safe_load_index(preferred_dimension=embedding_dimension)
         metadata = self._load_metadata()
 
         ids_to_remove = [
@@ -86,7 +93,7 @@ class FaissVectorStoreService:
     def similarity_search(self, query: str, top_k: int = 5, allowed_document_ids: list[int] | None = None):
         """Search FAISS by query and return ranked chunk references."""
         embedding_dimension = self.embedding_service.embedding_dimension
-        index = load_faiss_database(self.index_path, embedding_dimension)
+        index = self._safe_load_index(preferred_dimension=embedding_dimension)
         if index.ntotal == 0:
             return []
 
@@ -134,6 +141,27 @@ class FaissVectorStoreService:
     def _save_metadata(self, metadata: dict) -> None:
         with self.metadata_path.open('w', encoding='utf-8') as metadata_file:
             json.dump(metadata, metadata_file, indent=2)
+
+    def _safe_load_index(self, preferred_dimension: int, fallback_dimension: int | None = None):
+        """Load index, falling back to a rebuild when stored dimension is incompatible."""
+        try:
+            return load_faiss_database(self.index_path, preferred_dimension)
+        except ValueError:
+            if fallback_dimension is not None and fallback_dimension != preferred_dimension:
+                return load_faiss_database(self.index_path, fallback_dimension)
+            _, _ = self._reset_store(preferred_dimension)
+            return load_faiss_database(self.index_path, preferred_dimension)
+
+    def _reset_store(self, embedding_dimension: int):
+        """Reinitialize index + metadata after embedding dimension drift."""
+        import faiss
+
+        base_index = faiss.IndexFlatIP(embedding_dimension)
+        index = faiss.IndexIDMap2(base_index)
+        metadata = {}
+        self._save_metadata(metadata)
+        save_faiss_database(index, self.index_path)
+        return index, metadata
 
     @staticmethod
     def _build_vector_id(document_id: int, chunk_index: int) -> int:

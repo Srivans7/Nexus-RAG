@@ -179,11 +179,14 @@ class DocumentProcessingAPIView(APIView):
 			processed_document, processed_chunks = DocumentProcessor.process(document)
 		except Exception as exc:
 			import logging
+			error_type = exc.__class__.__name__
+			error_message = str(exc).strip() or repr(exc)
 			logging.getLogger(__name__).exception('Document processing failed for document %s', document_id)
 			return Response(
 				{
-					'detail': f'Document processing failed: {exc}',
-					'error': str(exc),
+					'detail': f'Document processing failed ({error_type}): {error_message}',
+					'error': error_message,
+					'error_type': error_type,
 				},
 				status=status.HTTP_400_BAD_REQUEST,
 			)
