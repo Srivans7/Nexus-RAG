@@ -21,7 +21,6 @@ from .serializers import (
 	QuestionAnswerResponseSerializer,
 )
 from .services.document_processor import DocumentProcessor
-from .services.ollama_service import OllamaService
 from .services.qa_service import QuestionAnsweringService
 from .services.rag_exceptions import LLMGenerationError, RetrievalError
 from .services.rag_pipeline_service import RAGPipelineService
@@ -97,7 +96,7 @@ async def ask_stream_view(request):
 			)
 
 			try:
-				async for token in rag_pipeline_service.ollama_service.astream_generate(pipeline_context['prompt']):
+				async for token in rag_pipeline_service.llm_service.astream_generate(pipeline_context['prompt']):
 					has_streamed_model_output = True
 					answer_fragments.append(token)
 					yield _sse_event('token', {'token': token})
@@ -116,7 +115,7 @@ async def ask_stream_view(request):
 
 			answer = ''.join(answer_fragments).strip()
 			if not answer:
-				yield _sse_event('error', {'detail': 'Ollama returned an empty answer.'})
+				yield _sse_event('error', {'detail': 'LLM returned an empty answer.'})
 				return
 
 			answer = rag_pipeline_service.sanitize_answer(
@@ -246,7 +245,7 @@ class QuestionAnswerAPIView(APIView):
 
 
 class AskAPIView(APIView):
-	"""Runs the full RAG pipeline and generates an answer via local Ollama."""
+	"""Runs the full RAG pipeline and generates an answer via Gemini."""
 
 	def post(self, request):
 		serializer = AskRequestSerializer(data=request.data)
@@ -290,7 +289,7 @@ class AskAPIView(APIView):
 		return Response(response_serializer.data, status=status.HTTP_200_OK)
 
 
-class OllamaHealthAPIView(APIView):
+class LLMHealthAPIView(APIView):
 	"""Reports LLM backend connectivity and model availability."""
 
 	def get(self, request):

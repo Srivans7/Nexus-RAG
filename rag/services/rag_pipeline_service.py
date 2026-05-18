@@ -4,55 +4,14 @@ import re
 from ..models import Document, DocumentChunk
 from .conversation_memory_service import ConversationMemoryService
 from .faiss_vector_store_service import FaissVectorStoreService
-from .ollama_service import OllamaService
+from .gemini_service import GeminiService
 from .prompt_builder_service import PromptBuilderService
 from .rag_exceptions import LLMGenerationError, RetrievalError
 
 
 def _get_llm_service():
-    """Return the LLM service based on RAG_LLM_BACKEND setting.
-
-    When backend is 'auto', tries Gemini first (if key is set),
-    then OpenRouter, then falls back to Ollama.
-    """
-    backend = getattr(settings, 'RAG_LLM_BACKEND', 'auto')
-
-    if backend == 'gemini':
-        from .gemini_service import GeminiService
-        return GeminiService()
-
-    if backend == 'groq':
-        from .groq_service import GroqService
-        return GroqService()
-
-    if backend == 'openrouter':
-        from .openrouter_service import OpenRouterService
-        return OpenRouterService()
-
-    if backend == 'ollama':
-        return OllamaService()
-
-    # backend == 'auto': Gemini -> OpenRouter -> Ollama
-    if getattr(settings, 'RAG_GEMINI_API_KEY', ''):
-        try:
-            from .gemini_service import GeminiService
-            import logging
-            logging.getLogger(__name__).info('Auto-backend: using Gemini.')
-            return GeminiService()
-        except Exception:
-            pass
-
-    if getattr(settings, 'RAG_OPENROUTER_API_KEY', ''):
-        try:
-            from .openrouter_service import OpenRouterService
-            import logging
-            logging.getLogger(__name__).info('Auto-backend: using OpenRouter.')
-            return OpenRouterService()
-        except Exception:
-            pass
-    import logging
-    logging.getLogger(__name__).info('Auto-backend: using Ollama.')
-    return OllamaService()
+    """Return the Gemini LLM service."""
+    return GeminiService()
 
 
 class RAGPipelineService:
@@ -63,12 +22,12 @@ class RAGPipelineService:
         vector_store_service: FaissVectorStoreService | None = None,
         conversation_memory_service: ConversationMemoryService | None = None,
         prompt_builder_service: PromptBuilderService | None = None,
-        ollama_service: OllamaService | None = None,
+        llm_service: GeminiService | None = None,
     ):
         self.vector_store_service = vector_store_service or FaissVectorStoreService()
         self.conversation_memory_service = conversation_memory_service or ConversationMemoryService()
         self.prompt_builder_service = prompt_builder_service or PromptBuilderService()
-        self.ollama_service = ollama_service or _get_llm_service()
+        self.llm_service = llm_service or _get_llm_service()
 
     def ask(self, question: str, conversation_id=None, document_ids: list[int] | None = None) -> dict:
         """Execute full RAG flow and return generated answer with source metadata."""
@@ -79,7 +38,7 @@ class RAGPipelineService:
         )
 
         try:
-            raw_answer = self.ollama_service.generate(prompt=pipeline_context['prompt'])
+            raw_answer = self.llm_service.generate(prompt=pipeline_context['prompt'])
             answer = self.sanitize_answer(
                 question=question,
                 answer=raw_answer,

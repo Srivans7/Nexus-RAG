@@ -136,33 +136,14 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR
 
 # RAG vector store configuration.
-RAG_EMBEDDING_MODEL = 'sentence-transformers/all-MiniLM-L6-v2'
 RAG_VECTOR_DB_DIR = BASE_DIR / 'vector_store'
 RAG_FAISS_INDEX_FILE = RAG_VECTOR_DB_DIR / 'rag_chunks.faiss'
 RAG_FAISS_META_FILE = RAG_VECTOR_DB_DIR / 'rag_chunks_metadata.json'
 RAG_RETRIEVAL_TOP_K = 6
 
-# LLM backend: 'auto' (smart fallback), 'gemini', 'openrouter', 'groq', or 'ollama'.
-# 'auto' preference order: Gemini -> OpenRouter -> Ollama.
-RAG_LLM_BACKEND = os.getenv('RAG_LLM_BACKEND', 'auto')
-
-# Ollama local LLM configuration.
-RAG_OLLAMA_BASE_URL = os.getenv('RAG_OLLAMA_BASE_URL', 'http://127.0.0.1:11434')
-RAG_OLLAMA_MODEL = os.getenv('RAG_OLLAMA_MODEL', 'qwen2.5:1.5b')
-RAG_OLLAMA_TIMEOUT_SECONDS = int(os.getenv('RAG_OLLAMA_TIMEOUT_SECONDS', '600'))
-RAG_OLLAMA_TEMPERATURE = float(os.getenv('RAG_OLLAMA_TEMPERATURE', '0.2'))
-RAG_OLLAMA_TOP_P = float(os.getenv('RAG_OLLAMA_TOP_P', '0.9'))
-RAG_OLLAMA_REPEAT_PENALTY = float(os.getenv('RAG_OLLAMA_REPEAT_PENALTY', '1.1'))
-RAG_OLLAMA_NUM_PREDICT = int(os.getenv('RAG_OLLAMA_NUM_PREDICT', '900'))
+# LLM backend: Gemini only.
+RAG_LLM_BACKEND = 'gemini'
 RAG_ENABLE_LLM_FALLBACK = True
-
-# Groq free cloud API configuration (https://console.groq.com — free tier: 14k req/day).
-RAG_GROQ_API_KEY = os.getenv('RAG_GROQ_API_KEY', '')
-RAG_GROQ_MODEL = os.getenv('RAG_GROQ_MODEL', 'llama-3.1-8b-instant')  # free, fast
-
-# OpenRouter cloud API configuration (https://openrouter.ai — free models available).
-RAG_OPENROUTER_API_KEY = os.getenv('RAG_OPENROUTER_API_KEY', '')
-RAG_OPENROUTER_MODEL = os.getenv('RAG_OPENROUTER_MODEL', 'google/gemma-4-26b-a4b-it:free')
 
 # Gemini cloud API configuration (https://ai.google.dev).
 RAG_GEMINI_API_KEY = os.getenv('RAG_GEMINI_API_KEY', '')

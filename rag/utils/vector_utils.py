@@ -1,31 +1,4 @@
-import functools
 from pathlib import Path
-
-
-DEFAULT_EMBEDDING_MODEL = 'sentence-transformers/all-MiniLM-L6-v2'
-
-
-@functools.lru_cache(maxsize=4)
-def get_embedding_model(model_name: str = DEFAULT_EMBEDDING_MODEL):
-    """Load and cache a SentenceTransformer model for reuse across requests."""
-    from sentence_transformers import SentenceTransformer
-    return SentenceTransformer(model_name)
-
-
-def create_embeddings(texts: list[str], model_name: str = DEFAULT_EMBEDDING_MODEL):
-    """Create normalized float32 embeddings for a list of texts."""
-    import numpy as np
-    if not texts:
-        return np.zeros((0, 0), dtype='float32')
-
-    model = get_embedding_model(model_name)
-    vectors = model.encode(
-        texts,
-        convert_to_numpy=True,
-        normalize_embeddings=True,
-        show_progress_bar=False,
-    )
-    return vectors.astype('float32')
 
 
 def load_faiss_database(index_path, embedding_dimension):

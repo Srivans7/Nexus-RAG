@@ -19,7 +19,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import include, path
 
-from rag.views import AskAPIView, ChatSessionDetailAPIView, ChatSessionListAPIView, DocumentProcessingAPIView, FileUploadAPIView, OllamaHealthAPIView, ask_stream_view
+from rag.views import AskAPIView, ChatSessionDetailAPIView, ChatSessionListAPIView, DocumentProcessingAPIView, FileUploadAPIView, LLMHealthAPIView, ask_stream_view
 from rag.auth_views import google_oauth_login, get_current_user, logout, update_profile
 
 urlpatterns = [
@@ -32,7 +32,7 @@ urlpatterns = [
     path('api/process/<int:document_id>/', DocumentProcessingAPIView.as_view(), name='api-process'),
     path('api/ask/', AskAPIView.as_view(), name='api-ask'),
     path('api/ask/stream/', ask_stream_view, name='api-ask-stream'),
-    path('api/health/ollama/', OllamaHealthAPIView.as_view(), name='api-ollama-health'),
+    path('api/health/llm/', LLMHealthAPIView.as_view(), name='api-llm-health'),
     path('api/chat-sessions/', ChatSessionListAPIView.as_view(), name='api-chat-sessions'),
     path('api/chat-sessions/<uuid:session_id>/', ChatSessionDetailAPIView.as_view(), name='api-chat-session-detail'),
     path('api/rag/', include('rag.urls')),

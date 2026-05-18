@@ -8,8 +8,6 @@ from rest_framework.test import APIClient
 
 from .models import ChatMessage, ChatSession, Document, DocumentChunk
 from .services.conversation_memory_service import ConversationMemoryService
-from .services.ollama_http_client import OllamaHttpError
-from .services.ollama_service import OllamaService
 from .services.rag_exceptions import LLMGenerationError, RetrievalError
 from .services.rag_pipeline_service import RAGPipelineService
 
@@ -58,7 +56,7 @@ class RAGPipelineServiceTests(TestCase):
 		service = RAGPipelineService(
 			vector_store_service=mock_vector_store,
 			prompt_builder_service=mock_prompt_builder,
-			ollama_service=mock_ollama,
+			llm_service=mock_ollama,
 		)
 
 		result = service.ask('How should I deploy?')
@@ -84,7 +82,7 @@ class RAGPipelineServiceTests(TestCase):
 		service = RAGPipelineService(
 			vector_store_service=mock_vector_store,
 			prompt_builder_service=mock_prompt_builder,
-			ollama_service=Mock(),
+			llm_service=Mock(),
 		)
 
 		result = service.prepare('How should I deploy?')
@@ -101,7 +99,7 @@ class RAGPipelineServiceTests(TestCase):
 		service = RAGPipelineService(
 			vector_store_service=mock_vector_store,
 			prompt_builder_service=Mock(build=Mock(return_value='prompt content')),
-			ollama_service=Mock(),
+			llm_service=Mock(),
 		)
 
 		result = service.prepare('How should I deploy using reverse proxy?')
@@ -118,7 +116,7 @@ class RAGPipelineServiceTests(TestCase):
 		service = RAGPipelineService(
 			vector_store_service=mock_vector_store,
 			prompt_builder_service=Mock(build=Mock(return_value='prompt content')),
-			ollama_service=Mock(),
+			llm_service=Mock(),
 		)
 
 		service.prepare('How do I recover?', document_ids=[self.second_document.id])
@@ -136,13 +134,13 @@ class RAGPipelineServiceTests(TestCase):
 		]
 		prompt_builder = Mock()
 		prompt_builder.build.return_value = 'prompt content'
-		ollama_service = Mock()
-		ollama_service.generate.return_value = 'Use gunicorn.'
+		mock_llm = Mock()
+		mock_llm.generate.return_value = 'Use gunicorn.'
 
 		service = RAGPipelineService(
 			vector_store_service=first_vector_store,
 			prompt_builder_service=prompt_builder,
-			ollama_service=ollama_service,
+			llm_service=mock_llm,
 		)
 
 		first_result = service.ask('How should I deploy?')
@@ -157,7 +155,7 @@ class RAGPipelineServiceTests(TestCase):
 		follow_up_service = RAGPipelineService(
 			vector_store_service=second_vector_store,
 			prompt_builder_service=second_prompt_builder,
-			ollama_service=Mock(),
+			llm_service=Mock(),
 		)
 
 		follow_up_service.prepare(
@@ -186,7 +184,7 @@ class RAGPipelineServiceTests(TestCase):
 		service = RAGPipelineService(
 			vector_store_service=mock_vector_store,
 			prompt_builder_service=mock_prompt_builder,
-			ollama_service=mock_ollama,
+			llm_service=mock_ollama,
 		)
 
 		result = service.ask('How should I deploy?')
@@ -198,7 +196,7 @@ class RAGPipelineServiceTests(TestCase):
 		service = RAGPipelineService(
 			vector_store_service=Mock(),
 			prompt_builder_service=Mock(),
-			ollama_service=Mock(),
+			llm_service=Mock(),
 		)
 
 		dump_like_answer = (
@@ -332,8 +330,8 @@ class AskAPIViewTests(TestCase):
 			'primary_document_id': None,
 			'fallback_answer': 'fallback answer',
 		}
-		mock_pipeline.ollama_service = Mock()
-		mock_pipeline.ollama_service.astream_generate = fake_stream
+		mock_pipeline.llm_service = Mock()
+		mock_pipeline.llm_service.astream_generate = fake_stream
 		mock_pipeline.conversation_memory_service = Mock()
 		mock_pipeline.sanitize_answer = Mock(side_effect=lambda **kwargs: kwargs['answer'])
 		mock_pipeline_class.return_value = mock_pipeline
