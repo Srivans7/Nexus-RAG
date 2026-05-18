@@ -1,15 +1,15 @@
 import numpy as np
 from django.conf import settings
 
-from .gemini_embedding_service import GEMINI_EMBEDDING_DIM, embed_with_gemini
+from .gemini_embedding_service import get_embedding_dim, embed_with_gemini
 
 
 class EmbeddingService:
-    """Reusable service for text embedding operations using Gemini text-embedding-004."""
+    """Reusable service for text embedding operations using Gemini."""
 
     @property
     def embedding_dimension(self) -> int:
-        return GEMINI_EMBEDDING_DIM
+        return get_embedding_dim()
 
     def embed_texts(self, texts: list[str]):
         """Embed multiple chunk texts for bulk FAISS upsert operations."""
