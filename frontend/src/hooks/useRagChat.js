@@ -213,10 +213,10 @@ export function useRagChat() {
       conversationId: state.conversationId,
       documentIds: selectedDocumentIds,
     };
+    let receivedStreamToken = false;
 
     try {
       let streamCompleted = false;
-      let receivedStreamToken = false;
       await streamAskQuestion(trimmedQuestion, {
         ...requestOptions,
         signal: abortController.signal,
