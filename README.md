@@ -1,118 +1,102 @@
-# Django DRF RAG Backend
+# Nexus RAG
 
-This project provides a clean backend scaffold for a Retrieval-Augmented Generation (RAG) workflow using Django + Django REST Framework.
+A document question-answering app built with Django and React. Upload your files, ask questions, and get answers grounded in your documents — powered by Google Gemini and FAISS vector search.
 
-## Step-by-step build summary
+**Live demo:** [nexus-rag-gamma.vercel.app](https://nexus-rag-gamma.vercel.app)
 
-1. Created Django project: `config`
-2. Created app: `rag`
-3. Added dependencies: Django, DRF, PyPDF
-4. Added file storage for uploaded documents in `documents/`
-5. Implemented models for documents and Q&A logs
-6. Implemented service layer for:
-  - file parsing (`.md`, `.txt`, `.pdf`)
-  - document processing
-  - question answering
-7. Implemented LangChain-based utility pipeline for document processing:
-  - loaders: `TextLoader` and `PyPDFLoader`
-  - text cleanup/normalization
-  - chunking with `RecursiveCharacterTextSplitter`
-  - chunk size: `500`
-  - chunk overlap: `50`
-  - persistent chunk storage in database
-  - structured processing errors
-8. Implemented embedding + vector storage pipeline:
-  - model: `sentence-transformers/all-MiniLM-L6-v2`
-  - chunk embedding generation with sentence-transformers
-  - local FAISS persistence for semantic retrieval
-  - reusable services for embedding, FAISS load/save, and similarity search
-9. Implemented DRF serializers, API views, and URL routes
-10. Created and applied migrations
-11. Validated the project with `manage.py check`
+---
 
-## API Endpoints
+## What it does
 
-- `POST /api/rag/upload/`
-  - Upload a file in form-data key: `original_file`
-- `POST /api/rag/documents/<document_id>/process/`
-  - Process uploaded document into extracted text and chunks
-  - Returns:
-    - `document` metadata
-    - `chunks` array (chunk index, content, metadata)
-- `POST /api/rag/question-answer/`
-  - Request body:
-    ```json
-    {
-      "question": "What is this document about?",
-      "document_id": 1
-    }
-    ```
-  - `document_id` is optional; if omitted, the endpoint searches all processed documents
+You upload a document (PDF, markdown, or text), the backend breaks it into chunks, embeds them using Gemini, and stores them in a FAISS index. When you ask a question, the most relevant chunks are retrieved and sent to Gemini as context to generate a grounded answer.
 
-- `POST /api/ask/`
-  - Full Retrieval-Augmented Generation pipeline endpoint
-  - Request body:
-    ```json
-    {
-      "question": "What does the uploaded document say about deployment?"
-    }
-    ```
+---
 
-- `GET /api/health/ollama/`
-  - Checks Ollama connectivity and confirms `llama3` model availability
-  - Returns 200 when healthy, 503 when unreachable or model is missing
-  - Response body:
-    ```json
-    {
-      "answer": "...",
-      "sources": [
-        {
-          "document_id": 1,
-          "file_name": "notes.md",
-          "chunk_index": 2,
-          "score": 0.81
-        }
-      ]
-    }
-    ```
+## Tech stack
 
-## Vector Search Storage
+**Backend**
+- Django 6 + Django REST Framework
+- Google Gemini (embeddings + LLM)
+- FAISS for vector search
+- LangChain for document loading and chunking
+- Gunicorn — deployed on [Render](https://render.com)
 
-- FAISS index file: `vector_store/rag_chunks.faiss`
-- Metadata file: `vector_store/rag_chunks_metadata.json`
-- Embedding model: `sentence-transformers/all-MiniLM-L6-v2`
+**Frontend**
+- React + Vite + Tailwind CSS
+- Google OAuth login
+- Deployed on [Vercel](https://vercel.com)
 
-## Complete RAG Ask Pipeline
+---
 
-1. Accept question from `POST /api/ask/`
-2. Retrieve top relevant chunks from FAISS
-3. Build a grounded prompt template with source-tagged context
-4. Send prompt to local Ollama (`llama3`)
-5. Return generated answer with source metadata
+## API
 
-### Ollama configuration
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/health/` | Basic health check |
+| GET | `/api/health/llm/` | Gemini connectivity check |
+| POST | `/api/upload/` | Upload a document |
+| POST | `/api/documents/<id>/process/` | Process document into chunks + embeddings |
+| POST | `/api/ask/` | Ask a question over all processed documents |
+| GET/POST | `/api/chats/` | Chat session management |
+| POST | `/api/auth/google/` | Google OAuth login |
 
-- Base URL: `http://127.0.0.1:11434`
-- Model: `llama3`
-- Configurable via Django settings:
-  - `RAG_OLLAMA_BASE_URL`
-  - `RAG_OLLAMA_MODEL`
-  - `RAG_OLLAMA_TIMEOUT_SECONDS`
+### Example
 
-### Fallback behavior
+```bash
+# Upload a file
+curl -X POST https://nexus-rag-backend-lkhp.onrender.com/api/upload/ \
+  -F "original_file=@notes.pdf"
 
-- If Ollama is unavailable, the pipeline can return retrieval-only context fallback
-- Controlled by setting: `RAG_ENABLE_LLM_FALLBACK`
-- Default: `True`
-
-## Run the server
-
-```powershell
-c:/Users/Lenovo/OneDrive/Desktop/RAG/.venv/Scripts/python.exe manage.py runserver
+# Ask a question
+curl -X POST https://nexus-rag-backend-lkhp.onrender.com/api/ask/ \
+  -H "Content-Type: application/json" \
+  -d '{"question": "What is the main topic of the document?"}'
 ```
 
-## Notes
+---
 
-- Uploaded files are stored under `documents/`
-- PDF parsing uses `pypdf`
-- QA logic is intentionally lightweight and can be replaced with embeddings/vector database + LLM integration later
+## Running locally
+
+```bash
+# Clone and set up
+git clone https://github.com/Srivans7/Nexus-RAG.git
+cd Nexus-RAG
+python -m venv .venv
+.venv\Scripts\activate       # Windows
+pip install -r requirements.txt
+
+# Set env vars (create a .env or export manually)
+set RAG_GEMINI_API_KEY=your_key_here
+
+# Run
+python manage.py migrate
+python manage.py runserver
+```
+
+For the frontend:
+
+```bash
+cd frontend
+npm install
+echo VITE_API_BASE_URL=http://localhost:8000 > .env.local
+npm run dev
+```
+
+---
+
+## Environment variables
+
+| Variable | Description |
+|----------|-------------|
+| `RAG_GEMINI_API_KEY` | Google Gemini API key |
+| `RAG_GEMINI_MODEL` | Model name (default: `gemini-2.5-flash`) |
+| `SECRET_KEY` | Django secret key |
+| `ALLOWED_HOSTS` | Comma-separated list of allowed hosts |
+| `CORS_ALLOWED_ORIGINS` | Frontend origin (e.g. `https://nexus-rag-gamma.vercel.app`) |
+| `JWT_SECRET_KEY` | Secret for JWT tokens |
+
+---
+
+## License
+
+MIT © [Srivans Katriyar](https://github.com/Srivans7)
