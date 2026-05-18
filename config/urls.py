@@ -17,12 +17,19 @@ Including another URLconf
 from django.contrib import admin
 from django.conf import settings
 from django.conf.urls.static import static
+from django.http import JsonResponse
 from django.urls import include, path
 
 from rag.views import AskAPIView, ChatSessionDetailAPIView, ChatSessionListAPIView, DocumentProcessingAPIView, FileUploadAPIView, LLMHealthAPIView, ask_stream_view
 from rag.auth_views import google_oauth_login, get_current_user, logout, update_profile
 
+
+def health(request):
+    return JsonResponse({'status': 'ok'})
+
+
 urlpatterns = [
+    path('health/', health, name='health'),
     path('admin/', admin.site.urls),
     path('api/auth/google/', google_oauth_login, name='api-auth-google'),
     path('api/auth/user/', get_current_user, name='api-auth-user'),
