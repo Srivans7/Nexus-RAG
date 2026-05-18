@@ -7,7 +7,7 @@ from django.conf import settings
 logger = logging.getLogger(__name__)
 
 _GEMINI_EMBED_URL = (
-    'https://generativelanguage.googleapis.com/v1beta/models/'
+    'https://generativelanguage.googleapis.com/v1/models/'
     'text-embedding-004:embedContent'
 )
 GEMINI_EMBEDDING_DIM = 768
