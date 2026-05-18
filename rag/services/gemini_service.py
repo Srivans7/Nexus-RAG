@@ -39,6 +39,9 @@ class GeminiService:
         return f'models/{model}'
 
     def generate(self, prompt: str) -> str:
+        temperature = float(getattr(settings, 'RAG_GEMINI_TEMPERATURE', 0.2))
+        top_p = float(getattr(settings, 'RAG_GEMINI_TOP_P', 0.9))
+        max_output_tokens = int(getattr(settings, 'RAG_GEMINI_MAX_OUTPUT_TOKENS', 512))
         payload = {
             'contents': [
                 {
@@ -47,9 +50,9 @@ class GeminiService:
                 }
             ],
             'generationConfig': {
-                'temperature': settings.RAG_OLLAMA_TEMPERATURE,
-                'topP': settings.RAG_OLLAMA_TOP_P,
-                'maxOutputTokens': settings.RAG_OLLAMA_NUM_PREDICT,
+                'temperature': temperature,
+                'topP': top_p,
+                'maxOutputTokens': max_output_tokens,
             },
         }
 

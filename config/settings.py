@@ -165,6 +165,9 @@ RAG_ENABLE_LLM_FALLBACK = True
 # Gemini cloud API configuration (https://ai.google.dev).
 RAG_GEMINI_API_KEY = os.getenv('RAG_GEMINI_API_KEY', '')
 RAG_GEMINI_MODEL = os.getenv('RAG_GEMINI_MODEL', 'gemini-2.5-flash')
+RAG_GEMINI_TEMPERATURE = float(os.getenv('RAG_GEMINI_TEMPERATURE', '0.2'))
+RAG_GEMINI_TOP_P = float(os.getenv('RAG_GEMINI_TOP_P', '0.9'))
+RAG_GEMINI_MAX_OUTPUT_TOKENS = int(os.getenv('RAG_GEMINI_MAX_OUTPUT_TOKENS', '512'))
 
 # JWT authentication configuration
 JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY', 'change-this-secret-key-in-production')
